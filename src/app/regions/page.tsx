@@ -1,0 +1,3 @@
+import Link from "next/link";
+import { Regions } from "@/components/regions";
+export default function RegionsPage() { return <main className="subpage"><section className="shell page-heading"><p className="eyebrow">WHERE TO PLANT</p><h1>바다숲이 자라기 좋은<br/>해역을 찾아보세요</h1><p>해역마다 권장 계절과 주의사항을 확인하고, 현지 어촌계·지자체의 최신 안내를 먼저 따라 주세요.</p></section><section className="shell region-section"><div className="section-head"><div><p className="eyebrow">RECOMMENDED AREAS</p><h2>추천 이식 해역</h2></div><small>사진은 지역 분위기를 표현한 AI 생성 대표 이미지입니다.</small></div><Regions/><div className="region-callout"><div><strong>이미 키트를 심으셨나요?</strong><p>키트의 고유 코드와 이식 해역을 선택해 참여 기록을 남겨보세요.</p></div><Link className="button" href="/certify">이식 인증하기</Link></div></section></main>; }

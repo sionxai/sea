@@ -1,0 +1,6 @@
+import { NextResponse } from "next/server";
+import { createOrder, getOrders } from "@/lib/store";
+import { getSession } from "@/lib/session";
+export const runtime = "nodejs";
+export async function GET() { const session = await getSession(); return session ? NextResponse.json(getOrders(session.id)) : NextResponse.json({ message: "로그인이 필요합니다." }, { status: 401 }); }
+export async function POST(request: Request) { const session = await getSession(); if (!session) return NextResponse.json({ message: "주문하려면 로그인해 주세요." }, { status: 401 }); const body = await request.json().catch(() => null) as { productId?: number; quantity?: number; recipient?: string; address?: string } | null; const productId = body?.productId, quantity = body?.quantity, recipient = body?.recipient?.trim(), address = body?.address?.trim(); if (typeof productId !== "number" || typeof quantity !== "number" || !Number.isInteger(productId) || !Number.isInteger(quantity) || !recipient || !address) return NextResponse.json({ message: "필수 입력값을 확인해 주세요." }, { status: 400 }); try { const id = createOrder(session.id, productId, quantity, recipient, address); return NextResponse.json({ id }, { status: 201 }); } catch (error) { return NextResponse.json({ message: error instanceof Error ? error.message : "주문을 만들 수 없습니다." }, { status: 400 }); } }

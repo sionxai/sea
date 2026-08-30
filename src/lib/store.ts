@@ -1,6 +1,7 @@
 import "server-only";
 import bcrypt from "bcryptjs";
 import { sqlite } from "@/lib/db";
+import { isDemoAccountEmail } from "@/lib/demo-accounts";
 import type { Order, Product, Region, Review } from "@/lib/types";
 
 const seedProducts = [
@@ -11,11 +12,7 @@ const seedProducts = [
 
 export function ensureSeedData() {
   const count = sqlite.prepare("SELECT count(*) as count FROM products").get() as { count: number };
-  if (count.count) return;
-  const insert = sqlite.transaction(() => {
-    const password = bcrypt.hashSync("ocean2026!", 12);
-    sqlite.prepare("INSERT INTO users (name,email,password_hash,role,created_at) VALUES (?,?,?,?,?)").run("바다 관리자", "admin@ocean.local", password, "admin", new Date().toISOString());
-    sqlite.prepare("INSERT INTO users (name,email,password_hash,role,created_at) VALUES (?,?,?,?,?)").run("체험 사용자", "user@ocean.local", password, "user", new Date().toISOString());
+  if (!count.count) sqlite.transaction(() => {
     const addProduct = sqlite.prepare("INSERT INTO products (name,description,price,stock,category,image) VALUES (?,?,?,?,?,?)");
     const addOption = sqlite.prepare("INSERT INTO product_options (product_id,name) VALUES (?,?)");
     const addReview = sqlite.prepare("INSERT INTO reviews (product_id,author,rating,content) VALUES (?,?,?,?)");
@@ -29,8 +26,15 @@ export function ensureSeedData() {
     addRegion.run("월정리 해역", "제주 구좌", "11월–2월", "파도가 높은 날에는 이식을 피해주세요.", 33.54, 126.79);
     addRegion.run("청산도 연안", "전남 완도", "9월–2월", "지정 구역 안에서만 진행해 주세요.", 34.18, 126.93);
     sqlite.prepare("INSERT INTO kit_codes (code,product_id) VALUES (?,?)").run("OCEAN-2026-START", 1);
-  });
-  insert();
+  })();
+  const demoEnabled = process.env.NODE_ENV === "development" && process.env.ENABLE_DEMO_ACCOUNTS !== "false";
+  const users = sqlite.prepare("SELECT count(*) as count FROM users").get() as { count: number };
+  if (demoEnabled && !users.count) {
+    const password = bcrypt.hashSync(process.env.DEMO_ACCOUNT_PASSWORD ?? "ocean2026!", 12);
+    const addUser = sqlite.prepare("INSERT INTO users (name,email,password_hash,role,created_at) VALUES (?,?,?,?,?)");
+    addUser.run("바다 관리자", "admin@ocean.local", password, "admin", new Date().toISOString());
+    addUser.run("체험 사용자", "user@ocean.local", password, "user", new Date().toISOString());
+  }
 }
 
 function reviews(productId: number): Review[] { return sqlite.prepare("SELECT id,author,rating,content FROM reviews WHERE product_id = ?").all(productId) as Review[]; }
@@ -46,7 +50,7 @@ export function getProducts(query = "", category = ""): Product[] {
 export function getProduct(id: number) { return getProducts().find((item) => item.id === id) ?? null; }
 export function getRegions(): Region[] { ensureSeedData(); return sqlite.prepare("SELECT * FROM regions ORDER BY id").all() as Region[]; }
 export function authenticate(email: string, password: string) {
-  ensureSeedData(); const user = sqlite.prepare("SELECT id,name,email,password_hash as passwordHash,role FROM users WHERE email = ?").get(email) as { id: number; name: string; email: string; passwordHash: string; role: string } | undefined;
+  ensureSeedData(); if (process.env.NODE_ENV === "production" && isDemoAccountEmail(email)) return null; const user = sqlite.prepare("SELECT id,name,email,password_hash as passwordHash,role FROM users WHERE email = ?").get(email) as { id: number; name: string; email: string; passwordHash: string; role: string } | undefined;
   return user && bcrypt.compareSync(password, user.passwordHash) ? { id: user.id, name: user.name, email: user.email, role: user.role } : null;
 }
 export function createOrder(userId: number, productId: number, quantity: number, recipient: string, address: string) {

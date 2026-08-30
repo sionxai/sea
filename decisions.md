@@ -17,3 +17,10 @@
 | 2026-08-30 | 상품은 카테고리·옵션·이미지·재고·후기를, 주문은 항목·배송지·결제/배송 상태를 저장 | 목록·상세·주문·배송조회 화면 요구를 충족 | Product, ProductOption, Review, Order, OrderItem, ShippingAddress |
 | 2026-08-30 | 지도는 사전 등록한 추천 해역(좌표·권장 계절·주의사항)을 카드와 간단 좌표판으로 표시 | 지도 API 키·외부 지도 서비스 없이 해역 안내를 제공 | Region API 및 이식 인증의 해역 선택 |
 | 2026-08-30 | 이식 인증은 고유 키트 코드·추천 해역·인증일을 저장 | 민감한 실시간 위치·사진 없이 최소 인증 흐름을 완성 | KitCode, Certification API와 인증 화면 |
+| 2026-08-31 | 상품·비회원 주문·관리자 운영 데이터는 Firestore 서버 SDK로 분리 | 비회원 주문 조회와 관리자 운영 데이터를 Firebase로 영속화하되, 해역·이식 인증의 기존 SQLite 범위는 보존 | `products`·`orders`·주문 요청·속도 제한 Firestore 컬렉션과 주문/관리자 API |
+| 2026-08-31 | 관리자 인증은 bcrypt 환경 변수와 서명 HttpOnly 쿠키를 사용 | 관리자 평문 비밀번호를 추적 파일에 남기지 않고, 클라이언트 Firestore 접근을 전면 차단 | `/admin/login`, `ADMIN_PASSWORD_HASH`, `ADMIN_SESSION_SECRET`, Firestore rules |
+| 2026-08-31 | 비회원 조회는 JSON POST와 주문 번호·조회 코드의 이중 검증으로 제한 | 조회 코드가 URL·브라우저 기록·접근 로그에 노출되지 않게 하고, 속도 제한과 bcrypt 비교를 적용 | `/api/orders/lookup`, 주문 조회 화면, rate-limit 컬렉션 |
+| 2026-08-31 | 관리자 로그아웃은 Firestore nonce 폐기 레코드를 남긴다 | 쿠키 삭제만으로는 탈취된 이전 세션을 즉시 무효화할 수 없기 때문 | `admin_session_revocations` 및 TTL 정책 |
+| 2026-08-31 | 주문 멱등성 요청은 24시간 TTL로 보존 | 네트워크 재시도에서 같은 조회 코드를 복구하면서 Firestore 요청 메타데이터가 무한히 쌓이지 않게 함 | `order_requests.expiresAt`, `ORDER_LOOKUP_SECRET` 회전 절차 |
+| 2026-08-31 | 만료된 운영 문서는 관리자 경로에서 제한적으로 정리 | 청구 비활성 상태에서도 rate limit·세션 폐기·멱등성 메타데이터가 무한히 쌓이지 않게 함 | 세 컬렉션의 `expiresAt`, 컬렉션별 최대 100건 batch delete |
+| 2026-08-31 | 새 운영 쓰기도 만료 문서를 1건씩 상환 | 관리자 로그인만 기다리지 않고 지속되는 주문·제한·세션 활동이 만료 메타데이터를 점진적으로 줄이게 함 | rate limit·주문 멱등성·세션 폐기 경로의 bounded cleanup |

@@ -10,7 +10,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "firebase emulators:exec --project demo-sea-forest-kit --only firestore \"FIREBASE_PROJECT_ID=demo-sea-forest-kit TEST_FIREBASE_PROJECT_ID=demo-sea-forest-kit TRUST_PROXY=1 playwright test\""
   },
   "keywords": [],
   "author": "",
@@ -19,6 +20,7 @@
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^13.0.3",
     "drizzle-orm": "^0.45.2",
+    "firebase-admin": "^13.10.0",
     "next": "^16.3.3",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
@@ -30,6 +32,7 @@
     "@types/node": "^26.4.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.5",
+    "firebase-tools": "^15.28.2",
     "tailwindcss": "^4.3.3",
     "typescript": "^5.9.3"
   }

@@ -274,6 +274,15 @@ button { cursor: pointer; }
 .orders-image > img { object-fit: cover; }
 .orders-section { padding: 70px 0 100px; }
 .orders-section .section-head h2 { font-size: clamp(30px, 4vw, 42px); }
+.orders-lookup, .admin-dashboard { display: grid; gap: 22px; }
+.orders-form { display: grid; max-width: 620px; gap: 14px; }
+.orders-form h3 { margin: 5px 0; font-size: 22px; }
+.orders-form label { display: grid; gap: 7px; color: var(--navy); font-size: 13px; font-weight: 800; }
+.order-created { display: grid; max-width: 620px; gap: 7px; }
+.order-created p { margin: 0; overflow-wrap: anywhere; }
+.order-created small { color: #365a55; line-height: 1.55; }
+.order-result > div, .admin-order-head, .admin-actions, .admin-product { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.order-result strong { color: var(--coral); }
 
 /* Login */
 .auth-page { min-height: calc(100vh - 64px); padding: 42px 0 70px; background: #f2f6f3; }
@@ -288,6 +297,9 @@ button { cursor: pointer; }
 .auth-content > h2 { margin: 9px 0; font-size: 42px; letter-spacing: -.055em; }
 .auth-content > p:not(.eyebrow) { color: #768681; }
 .auth-content .form { max-width: none; margin: 30px 0 0; padding: 0; box-shadow: none; }
+.admin-login-card { width: min(100%, 520px); margin: 38px auto; border: 1px solid #dbe5e0; border-radius: 22px; padding: 34px; background: white; box-shadow: 0 18px 48px #12323b12; }
+.admin-login-card h1 { margin: 8px 0; font-size: clamp(31px, 6vw, 43px); letter-spacing: -.05em; }
+.admin-login-card .form { max-width: none; margin: 28px 0 0; }
 
 /* Admin */
 .admin-hero { padding: 32px 0; background: var(--navy); color: white; }
@@ -297,6 +309,9 @@ button { cursor: pointer; }
 .admin-image { position: relative; min-height: 170px; overflow: hidden; border-radius: 18px; }
 .admin-image > img { object-fit: cover; }
 .admin-section { padding: 54px 0 100px; }
+.admin-list { display: grid; gap: 10px; margin-top: 12px; }
+.admin-product .field { width: 108px; margin-left: 7px; }
+.admin-order-head .field { width: min(100%, 135px); }
 
 @media (max-width: 820px) {
   .hero-grid { grid-template-columns: 1fr; gap: 20px; min-height: auto; }
@@ -404,6 +419,10 @@ button { cursor: pointer; }
   .orders-hero-inner { gap: 24px; }
   .orders-hero h1 { font-size: 42px; }
   .orders-image { min-height: 270px; border-radius: 18px; }
+  .admin-login-card { margin: 20px auto; padding: 26px 18px; border-radius: 18px; }
+  .admin-product { align-items: flex-start; flex-direction: column; }
+  .admin-product .field { width: 100%; margin: 5px 0 0; }
+  .admin-product label { width: 100%; }
   .auth-page { padding: 20px 0 50px; }
   .auth-layout { border-radius: 20px; }
   .auth-visual { min-height: 390px; }
